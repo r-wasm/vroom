@@ -381,6 +381,7 @@ void vroom_write_out(
       auto num_lines = std::min(buf_lines, num_rows - begin);
       auto end = begin + num_lines;
       futures[idx][t++] = std::async(
+          vroom::async::policy,
           fill_buf,
           std::cref(input),
           delim,
@@ -401,7 +402,7 @@ void vroom_write_out(
       }
     }
 
-    write_fut = std::async([&, idx, t] {
+    write_fut = std::async(vroom::async::policy, [&, idx, t] {
       size_t sz = 0;
       for (size_t i = 0; i < t; ++i) {
         auto buf = futures[idx][i].get();
@@ -526,6 +527,7 @@ void vroom_write_out(
       auto num_lines = std::min(buf_lines, num_rows - begin);
       auto end = begin + num_lines;
       futures[idx][t++] = std::async(
+          vroom::async::policy,
           fill_buf,
           std::cref(input),
           delim,

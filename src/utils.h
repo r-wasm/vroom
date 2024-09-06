@@ -3,11 +3,24 @@
 #include <array>
 #include <cpp11/R.hpp>
 #include <cstring>
+#include <future>
 #include <sstream>
 #include <string>
 #include <tuple>
 
 namespace vroom {
+
+// Force deferred std::async() launch policy under WebAssembly
+// TODO: Remove this when Emscripten better handles using both pthreads
+// and SIDE_MODULES at the same time.
+class async {
+public:
+#ifdef __EMSCRIPTEN__
+  static const std::launch policy = std::launch::deferred;
+#else
+  static const std::launch policy = std::launch::any;
+#endif
+};
 
 inline bool
 is_comment(const char* begin, const char* end, const std::string& comment) {

@@ -180,7 +180,11 @@ start_indexing:
     std::vector<std::future<void>> threads;
 
     if (nmax_set) {
+#ifdef __EMSCRIPTEN__
+      threads.emplace_back(std::async(vroom::async::policy, [&] {
+#else
       threads.emplace_back(std::async(std::launch::async, [&] {
+#endif
         n_max = n_max > lines_read ? n_max - lines_read : 0;
         index_region(
             mmap_,
@@ -250,6 +254,12 @@ start_indexing:
           use_threads,
           false);
     }
+
+#ifdef __EMSCRIPTEN__
+    for (auto& t : threads) {
+      t.wait();
+    }
+#endif
 
     if (progress_) {
 #ifndef VROOM_STANDALONE

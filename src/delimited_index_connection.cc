@@ -180,7 +180,8 @@ delimited_index_connection::delimited_index_connection(
     n_max = n_max > lines_read ? n_max - lines_read : 0;
 
     if (n_max > 0) {
-      parse_fut = std::async([&, i, sz, first_nl, total_read] {
+      parse_fut = std::async(vroom::async::policy,
+        [&, i, sz, first_nl, total_read] {
         lines_read = index_region(
             buf[i],
             idx_[1],
@@ -209,7 +210,7 @@ delimited_index_connection::delimited_index_connection(
         break;
       }
     }
-    write_fut = std::async(
+    write_fut = std::async(vroom::async::policy,
         [&, i, sz] { std::fwrite(buf[i].data(), sizeof(char), sz, out); });
 
     if (progress_) {

@@ -105,7 +105,7 @@ fixed_width_index_connection::fixed_width_index_connection(
     }
     lines_remaining -= lines_read;
 
-    parse_fut = std::async([&, i, start, total_read, sz] {
+    parse_fut = std::async(vroom::async::policy, [&, i, start, total_read, sz] {
       lines_read = index_region(
           buf[i],
           newlines_,
@@ -121,7 +121,7 @@ fixed_width_index_connection::fixed_width_index_connection(
     if (write_fut.valid()) {
       write_fut.wait();
     }
-    write_fut = std::async(
+    write_fut = std::async(vroom::async::policy,
         [&, i, sz] { std::fwrite(buf[i].data(), sizeof(char), sz, out); });
 
     if (progress) {
